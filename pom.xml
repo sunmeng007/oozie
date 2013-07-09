@@ -44,6 +44,7 @@
     </organization>
 
     <properties>
+        <javaVersion>1.7</javaVersion>
         <targetJavaVersion>1.6</targetJavaVersion>
 
         <!-- to be able to run a single test case from the main project -->
@@ -722,7 +723,7 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.1</version>
+                <version>2.4</version>
             </dependency>
 
             <dependency>
@@ -998,7 +999,7 @@
                             <version>[3.0.0,)</version>
                         </requireMavenVersion>
                         <requireJavaVersion>
-                            <version>1.6</version>
+                            <version>[${javaVersion}.0,${javaVersion}.1000}]</version>
                         </requireJavaVersion>
                     </rules>
                 </configuration>
