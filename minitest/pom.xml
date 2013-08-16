@@ -23,12 +23,12 @@
     <parent>
         <groupId>org.apache.oozie</groupId>
         <artifactId>oozie-main</artifactId>
-        <version>4.0.0</version>
+        <version>4.0.0-cdh5.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.apache.oozie.test</groupId>
     <artifactId>oozie-mini</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.0-cdh5.0.0-SNAPSHOT</version>
     <description>Apache Oozie MiniOozie</description>
     <name>Apache Oozie MiniOozie</name>
 
@@ -45,14 +45,19 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <!-- Due to CDH packaging differences, we need hadoop-client
+             and hadoop-minicluster instead of hadoop-core and
+             hadoop-test -->
         <dependency>
-            <groupId>org.apache.oozie</groupId>
-            <artifactId>oozie-hadoop</artifactId>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${cdh.hadoop.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.oozie</groupId>
-            <artifactId>oozie-hadoop-test</artifactId>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-minicluster</artifactId>
+            <version>${cdh.hadoop.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

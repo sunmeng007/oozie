@@ -19,9 +19,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.cloudera.cdh</groupId>
+        <artifactId>cdh-root</artifactId>
+        <version>5.0.0-SNAPSHOT</version>
+    </parent>
     <groupId>org.apache.oozie</groupId>
     <artifactId>oozie-main</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.0-cdh5.0.0-SNAPSHOT</version>
     <description>Apache Oozie Main</description>
     <name>Apache Oozie Main</name>
     <packaging>pom</packaging>
@@ -41,9 +46,6 @@
     <properties>
         <javaVersion>1.6</javaVersion>
         <targetJavaVersion>1.6</targetJavaVersion>
-
-        <distMgmtSnapshotsName>Apache Development Snapshot Repository</distMgmtSnapshotsName>
-        <distMgmtSnapshotsUrl>https://repository.apache.org/content/repositories/snapshots</distMgmtSnapshotsUrl>
 
         <!-- to be able to run a single test case from the main project -->
         <failIfNoTests>false</failIfNoTests>
@@ -69,9 +71,9 @@
         </oozie.test.default.config.file>
         <oozie.test.config.file>${oozie.test.default.config.file}</oozie.test.config.file>
 
-        <hadoop.version>1.1.1</hadoop.version>
-        <hbase.version>0.94.2</hbase.version>
-        <hcatalog.version>0.5.0</hcatalog.version>
+        <hadoop.version>${cdh.hadoop.version}</hadoop.version>
+        <hbase.version>${cdh.hbase.version}</hbase.version>
+        <hcatalog.version>${cdh.hive.version}</hcatalog.version>
 
         <hadooplib.version>${hadoop.version}.oozie-${project.version}</hadooplib.version>
         <hbaselib.version>${hbase.version}.oozie-${project.version}</hbaselib.version>
@@ -82,15 +84,15 @@
         This is required while we support a a pre 0.23 version of Hadoop which does not have
         the hadoop-auth artifact. After we phase-out pre 0.23 we can get rid of this property.
         -->
-        <hadoop.auth.version>2.0.2-alpha</hadoop.auth.version>
+        <hadoop.auth.version>${cdh.hadoop.version}</hadoop.auth.version>
 
          <!-- Sharelib component versions -->
-         <hive.version>0.10.0</hive.version>
-         <pig.version>0.10.1</pig.version>
+         <hive.version>${cdh.hive.version}</hive.version>
+         <pig.version>${cdh.pig.version}</pig.version>
          <pig.classifier></pig.classifier>
-         <sqoop.version>1.4.3</sqoop.version>
-         <sqoop.classifier>hadoop100</sqoop.classifier>
-         <streaming.version>${hadoop.version}</streaming.version>
+         <sqoop.version>${cdh.sqoop.version}</sqoop.version>
+         <sqoop.classifier></sqoop.classifier>
+         <streaming.version>${cdh.hadoop.version}</streaming.version>
          <distcp.version>${hadooplib.version}</distcp.version>
 
          <!-- Tomcat version -->
@@ -114,26 +116,25 @@
         <module>distro</module>
     </modules>
 
-    <distributionManagement>
-        <repository>
-          <id>apache.staging.https</id>
-          <name>Apache Release Distribution Repository</name>
-          <url>https://repository.apache.org/service/local/staging/deploy/maven2</url>
-        </repository>
-        <snapshotRepository>
-          <id>apache.snapshots.https</id>
-          <name>${distMgmtSnapshotsName}</name>
-          <url>${distMgmtSnapshotsUrl}</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <repositories>
         <repository>
-            <id>central</id>
-            <url>http://repo1.maven.org/maven2</url>
+            <id>cdh.repo</id>
+            <url>https://repository.cloudera.com/content/groups/cloudera-repos</url>
+            <name>Cloudera Repositories</name>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>cdh.snapshots.repo</id>
+            <url>https://repository.cloudera.com/content/repositories/snapshots</url>
+            <name>Cloudera Snapshots Repository</name>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </repository>
         <repository>
             <id>Codehaus repository</id>
@@ -498,12 +499,6 @@
                 <version>1.6.6</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.hive</groupId>
-                <artifactId>hive-builtins</artifactId>
-                <version>${hive.version}</version>
-            </dependency>
-
            <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-client</artifactId>
@@ -663,7 +658,7 @@
 
             <dependency>
                 <groupId>org.python</groupId>
-                <artifactId>jython</artifactId>
+                <artifactId>jython-standalone</artifactId>
                 <version>2.5.3</version>
             </dependency>
 
@@ -918,10 +913,6 @@
                         -->
                         <exclude>**/TestSsh*.java</exclude>
 
-                        <!-- Explictly use -Dtest=TestMapReduceActionExecutorUberJar to test the uber jar functionality.
-                             Requires at least Hadoop 1.2.0 or 2.2.0.
-                        -->
-                        <exclude>**/TestMapReduceActionExecutorUberJar.java</exclude>
                     </excludes>
                     <!-- DO NOT CHANGE THIS VALUES, TESTCASES CANNOT RUN IN PARALLEL -->
                     <parallel>classes</parallel>
@@ -985,39 +976,12 @@
             </properties>
         </profile>
         <profile>
-            <id>hadoop-23</id>
+            <id>mr1</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-               <hadoop.version>0.23.5</hadoop.version>
-               <hadoop.auth.version>0.23.5</hadoop.auth.version>
-               <pig.classifier>h2</pig.classifier>
-               <sqoop.classifier>hadoop23</sqoop.classifier>
-            </properties>
-        </profile>
-        <profile>
-            <id>hadoop-2</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-               <hadoop.version>2.2.0-SNAPSHOT</hadoop.version>
-               <hadoop.auth.version>2.2.0-SNAPSHOT</hadoop.auth.version>
-               <pig.classifier>h2</pig.classifier>
-               <sqoop.classifier>hadoop200</sqoop.classifier>
-            </properties>
-        </profile>
-        <profile>
-            <id>hadoop-3</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-               <hadoop.version>3.0.0-SNAPSHOT</hadoop.version>
-               <hadoop.auth.version>3.0.0-SNAPSHOT</hadoop.auth.version>
-               <pig.classifier>h2</pig.classifier>
-               <sqoop.classifier>hadoop200</sqoop.classifier>
+                <hadoop.version>${cdh.mr1.version}</hadoop.version>
             </properties>
         </profile>
         <profile>
