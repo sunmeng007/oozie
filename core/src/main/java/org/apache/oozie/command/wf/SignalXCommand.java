@@ -181,6 +181,7 @@ public class SignalXCommand extends WorkflowXCommand<Void> {
             }
             catch (WorkflowException e) {
                 wfJob.setStatus(WorkflowJob.Status.valueOf(workflowInstance.getStatus().toString()));
+                completed = true;
             }
             wfJob.setWorkflowInstance(workflowInstance);
             wfAction.resetPending();
