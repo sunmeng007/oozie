@@ -245,7 +245,6 @@ public class TestCoordRerunXCommand extends XDataTestCase {
         try {
             final OozieClient coordClient = LocalOozie.getCoordClient();
             coordClient.reRunCoord(jobId, RestConstants.JOB_COORD_SCOPE_ACTION, rerunScope, false, true);
-            fail("Exception expected because one action is missing from db.");
         }
         catch (OozieClientException ex) {
         }
