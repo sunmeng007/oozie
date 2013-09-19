@@ -89,7 +89,6 @@
          <!-- Sharelib component versions -->
          <hive.version>${cdh.hive.version}</hive.version>
          <pig.version>${cdh.pig.version}</pig.version>
-         <pig.classifier></pig.classifier>
          <sqoop.version>${cdh.sqoop.version}</sqoop.version>
          <streaming.version>${cdh.hadoop.version}</streaming.version>
          <distcp.version>${hadooplib.version}</distcp.version>
