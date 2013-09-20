@@ -183,6 +183,7 @@ public class CoordinatorJobBean implements Writable, CoordinatorJob, JsonBean {
     private String group = null;
 
     @Basic
+    @Index
     @Column(name = "bundle_id")
     private String bundleId = null;
 
