@@ -1199,10 +1199,10 @@ public abstract class XDataTestCase extends XHCatTestCase {
         action.setCred("null");
         action.setStats("dummyStats");
         if (pending) {
-            action.setPendingOnly();
+            action.setPending();
         }
         else {
-            action.resetPendingOnly();
+            action.resetPending();
         }
 
         Path inputDir = new Path(getFsTestCaseDir(), "input");
