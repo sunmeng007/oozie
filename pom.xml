@@ -45,7 +45,7 @@
 
     <properties>
         <javaVersion>1.7</javaVersion>
-        <targetJavaVersion>1.7</targetJavaVersion>
+        <targetJavaVersion>1.6</targetJavaVersion>
 
         <!-- to be able to run a single test case from the main project -->
         <failIfNoTests>false</failIfNoTests>
