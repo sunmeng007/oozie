@@ -39,6 +39,11 @@
             <version>${cdh.hadoop.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <artifactId>protobuf-java</artifactId>
+            <groupId>com.google.protobuf</groupId>
+            <version>2.5.0</version>
+        </dependency>
     </dependencies>
 
     <build>
