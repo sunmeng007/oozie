@@ -252,6 +252,12 @@
                 <type>war</type>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-minikdc</artifactId>
+                <version>${cdh.hadoop.version}</version>
+            </dependency>
+
             <!-- client -->
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
@@ -864,6 +870,11 @@
                     <artifactId>openjpa-maven-plugin</artifactId>
                     <version>${openjpa.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>2.4.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -980,6 +991,10 @@
                         -->
                         <exclude>**/TestSsh*.java</exclude>
 
+                        <!-- Explictly use -Dtest=TestZKUtilsWithSecurity to test the ZKUtils with security.
+                             It can conflict with other non-secure tests that use zookeeper
+                        -->
+                        <exclude>**/TestZKUtilsWithSecurity.java</exclude>
                     </excludes>
                     <!-- DO NOT CHANGE THIS VALUES, TESTCASES CANNOT RUN IN PARALLEL -->
                     <parallel>classes</parallel>
