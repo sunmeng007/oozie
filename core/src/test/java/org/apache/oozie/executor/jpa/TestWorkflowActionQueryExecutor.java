@@ -325,7 +325,8 @@ public class TestWorkflowActionQueryExecutor extends XDataTestCase {
         assertEquals(bean.getUserRetryInterval(), retBean.getUserRetryInterval());
         assertEquals(bean.getStartTime().getTime(), retBean.getStartTime().getTime());
         assertEquals(bean.getEndTime().getTime(), retBean.getEndTime().getTime());
-        assertEquals(bean.getCreatedTime().getTime(), retBean.getCreatedTime().getTime());
+        // CLOUDERA: uncomment when OOZIE-1468 is backported
+        //assertEquals(bean.getCreatedTime().getTime(), retBean.getCreatedTime().getTime());
         assertEquals(bean.getLastCheckTime().getTime(), retBean.getLastCheckTime().getTime());
         assertEquals(bean.getErrorCode(), retBean.getErrorCode());
         assertEquals(bean.getErrorMessage(), retBean.getErrorMessage());
