@@ -16,14 +16,18 @@
 package org.apache.oozie.action.hadoop;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -191,7 +195,7 @@ public class Hive2Main extends LauncherMain {
         // Prepare the Hive Script
         String script = readStringFromFile(scriptPath);
         System.out.println();
-        System.out.println("Script [" + scriptPath + "] content: ");
+        System.out.println("Original Script [" + scriptPath + "] content: ");
         System.out.println("------------------------");
         System.out.println(script);
         System.out.println("------------------------");
@@ -200,6 +204,7 @@ public class Hive2Main extends LauncherMain {
         // Pass any parameters to Hive via arguments
         String[] params = MapReduceMain.getStrings(hiveConf, HiveActionExecutor.HIVE_PARAMS);
         if (params.length > 0) {
+            Map<String, String> varMap = new HashMap<String, String>();
             System.out.println("Parameters:");
             System.out.println("------------------------");
             for (String param : params) {
@@ -211,9 +216,20 @@ public class Hive2Main extends LauncherMain {
                 } else if (idx == 0) {
                     throw new RuntimeException("Parameter value not specified: " + param);
                 }
-                arguments.add("--hivevar");
-                arguments.add(param);
+                String var = param.substring(0, idx);
+                String val = param.substring(idx + 1, param.length());
+                varMap.put(var, val);
             }
+            System.out.println("------------------------");
+            System.out.println();
+
+            String resolvedScript = substitute(varMap, script);
+            scriptPath = scriptPath + ".sub";
+            writeStringToFile(scriptPath, resolvedScript);
+
+            System.out.println("Resolved script [" + scriptPath + "] content: ");
+            System.out.println("------------------------");
+            System.out.println(resolvedScript);
             System.out.println("------------------------");
             System.out.println();
         }
@@ -282,4 +298,25 @@ public class Hive2Main extends LauncherMain {
             }
         }
      }
+
+    private static void writeStringToFile(String filePath, String str) throws IOException {
+        BufferedWriter out = null;
+        try {
+            out = new BufferedWriter(new FileWriter(filePath));
+            out.write(str);
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+
+    static String substitute(Map<String, String> vars, String expr) {
+        for (Map.Entry<String, String> entry : vars.entrySet()) {
+            String var = "${" + entry.getKey() + "}";
+            String value = entry.getValue();
+            expr = expr.replace(var, value);
+        }
+        return expr;
+    }
 }
