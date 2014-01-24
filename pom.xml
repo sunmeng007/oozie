@@ -514,12 +514,6 @@
                 <version>${hive.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.twitter</groupId>
-                <artifactId>parquet-hive-bundle</artifactId>
-                <version>${cdh.parquet.version}</version>
-            </dependency>
-
            <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-client</artifactId>

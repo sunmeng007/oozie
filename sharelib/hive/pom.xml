@@ -214,11 +214,6 @@
             <artifactId>oozie-sharelib-oozie</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.twitter</groupId>
-            <artifactId>parquet-hive-bundle</artifactId>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>
