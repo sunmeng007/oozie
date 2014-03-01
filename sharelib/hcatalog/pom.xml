@@ -198,6 +198,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.apache.hive.hcatalog</groupId>
+            <artifactId>hive-hcatalog-pig-adapter</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.oozie</groupId>
             <artifactId>oozie-hadoop</artifactId>
             <scope>provided</scope>
