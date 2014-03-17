@@ -1585,6 +1585,7 @@ var coord_jobs_store = new Ext.data.JsonStore({
         url: getOozieBase() + 'jobs'
     })
 });
+coord_jobs_store.proxy.conn.timeout = 300000;
 coord_jobs_store.proxy.conn.method = "GET";
 
 /* 
@@ -1604,6 +1605,7 @@ var jobs_store = new Ext.data.JsonStore({
         url: getOozieBase() + 'jobs'
     })
 });
+jobs_store.proxy.conn.timeout = 300000;
 jobs_store.proxy.conn.method = "GET";
 
 /* 
@@ -1625,6 +1627,7 @@ var bundle_jobs_store = new Ext.data.JsonStore({
         url: getOozieBase() + 'jobs'
     })
 });
+bundle_jobs_store.proxy.conn.timeout = 300000;
 bundle_jobs_store.proxy.conn.method = "GET";
 
 var configGridData = new Ext.data.JsonStore({
@@ -2049,6 +2052,7 @@ var timeZones_store = new Ext.data.JsonStore({
         url: getOozieBase() + 'admin' + "/available-timezones"
     })
 });
+timeZones_store.proxy.conn.timeout = 300000;
 timeZones_store.proxy.conn.method = "GET";
 
 function showCoordJobContextMenu(thisGrid, rowIndex, cellIndex, e) {
