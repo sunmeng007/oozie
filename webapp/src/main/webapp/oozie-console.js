@@ -1042,7 +1042,7 @@ function coordJobDetailsPopup(response, request) {
             header: "Last Mod Time",
             width: 170,
             sortable: true,
-            dataIndex: 'LastModifiedTime'
+            dataIndex: 'lastModifiedTime'
         } ],
         stripeRows: true,
         // autoHeight: true,
