@@ -523,7 +523,7 @@ public abstract class XDataTestCase extends XHCatTestCase {
      * @param status coord action status
      * @param resourceXmlName xml file name
      * @param pending pending counter
-     * @param actionNominalTime
+     * @param action nominal time
      * @return coord action bean
      * @throws Exception thrown if unable to create coord action bean
      */
@@ -595,6 +595,7 @@ public abstract class XDataTestCase extends XHCatTestCase {
             String resourceXmlName, int pending, Date actionNominalTime) throws Exception {
         return createCoordAction(jobId, actionNum, status, resourceXmlName, pending, "Z", actionNominalTime);
     }
+
 
     /**
      * Create coord action bean
