@@ -28,6 +28,8 @@ import org.apache.oozie.executor.jpa.CoordActionsActiveCountJPAExecutor;
 import org.apache.oozie.executor.jpa.CoordJobQueryExecutor;
 import org.apache.oozie.executor.jpa.CoordJobsToBeMaterializedJPAExecutor;
 import org.apache.oozie.executor.jpa.JPAExecutorException;
+import org.apache.oozie.executor.jpa.CoordJobQueryExecutor.CoordJobQuery;
+import org.apache.oozie.lock.LockToken;
 import org.apache.oozie.util.XCallable;
 import org.apache.oozie.util.XLog;
 import org.apache.oozie.util.DateUtils;
@@ -71,6 +73,8 @@ public class CoordMaterializeTriggerService implements Service {
         private long delay = 0;
         private List<XCallable<Void>> callables;
         private List<XCallable<Void>> delayedCallables;
+        private XLog LOG = XLog.getLog(getClass());
+
 
         public CoordMaterializeTriggerRunnable(int materializationWindow, int lookupInterval) {
             this.materializationWindow = materializationWindow;
@@ -79,29 +83,54 @@ public class CoordMaterializeTriggerService implements Service {
 
         @Override
         public void run() {
-            runCoordJobMatLookup();
+            LockToken lock = null;
 
-            if (null != callables) {
-                boolean ret = Services.get().get(CallableQueueService.class).queueSerial(callables);
-                if (ret == false) {
-                    XLog.getLog(getClass()).warn(
-                            "Unable to queue the callables commands for CoordMaterializeTriggerRunnable. "
-                                    + "Most possibly command queue is full. Queue size is :"
-                                    + Services.get().get(CallableQueueService.class).queueSize());
+            // first check if there is some other running instance from the same service;
+            try {
+                lock = Services.get().get(MemoryLocksService.class)
+                        .getWriteLock(CoordMaterializeTriggerService.class.getName(), lockTimeout);
+
+                if (lock != null) {
+                    runCoordJobMatLookup();
+                    if (null != callables) {
+                        boolean ret = Services.get().get(CallableQueueService.class).queueSerial(callables);
+                        if (ret == false) {
+                            XLog.getLog(getClass()).warn(
+                                    "Unable to queue the callables commands for CoordMaterializeTriggerRunnable. "
+                                            + "Most possibly command queue is full. Queue size is :"
+                                            + Services.get().get(CallableQueueService.class).queueSize());
+                        }
+                        callables = null;
+                    }
+                    if (null != delayedCallables) {
+                        boolean ret = Services.get().get(CallableQueueService.class)
+                                .queueSerial(delayedCallables, this.delay);
+                        if (ret == false) {
+                            XLog.getLog(getClass()).warn(
+                                    "Unable to queue the delayedCallables commands for CoordMaterializeTriggerRunnable. "
+                                            + "Most possibly Callable queue is full. Queue size is :"
+                                            + Services.get().get(CallableQueueService.class).queueSize());
+                        }
+                        delayedCallables = null;
+                        this.delay = 0;
+                    }
                 }
-                callables = null;
-            }
-            if (null != delayedCallables) {
-                boolean ret = Services.get().get(CallableQueueService.class).queueSerial(delayedCallables, this.delay);
-                if (ret == false) {
-                    XLog.getLog(getClass()).warn(
-                            "Unable to queue the delayedCallables commands for CoordMaterializeTriggerRunnable. "
-                                    + "Most possibly Callable queue is full. Queue size is :"
-                                    + Services.get().get(CallableQueueService.class).queueSize());
+
+                else {
+                    LOG.debug("Can't obtain lock, skipping");
                 }
-                delayedCallables = null;
-                this.delay = 0;
             }
+            catch (Exception e) {
+                LOG.error("Exception", e);
+            }
+            finally {
+                if (lock != null) {
+                    lock.release();
+                    LOG.info("Released lock for [{0}]", CoordMaterializeTriggerService.class.getName());
+                }
+
+            }
+
         }
 
         /**
@@ -137,25 +166,14 @@ public class CoordMaterializeTriggerService implements Service {
                 LOG.info("CoordMaterializeTriggerService - Curr Date= " + DateUtils.formatDateOozieTZ(currDate)  + ", Num jobs to materialize = "
                         + materializeJobs.size());
                 for (CoordinatorJobBean coordJob : materializeJobs) {
-                    if (Services.get().get(JobsConcurrencyService.class).isJobIdForThisServer(coordJob.getId())) {
-                        Services.get().get(InstrumentationService.class).get()
-                                .incr(INSTRUMENTATION_GROUP, INSTR_MAT_JOBS_COUNTER, 1);
-                        int numWaitingActions = jpaService.execute(new CoordActionsActiveCountJPAExecutor(coordJob
-                                .getId()));
-                        LOG.info("Job :" + coordJob.getId() + "  numWaitingActions : " + numWaitingActions
-                                + " MatThrottle : " + coordJob.getMatThrottling());
-                        // update lastModifiedTime so next time others get picked up in LRU fashion
-                        coordJob.setLastModifiedTime(new Date());
-                        CoordJobQueryExecutor.getInstance().executeUpdate(
-                                CoordJobQueryExecutor.CoordJobQuery.UPDATE_COORD_JOB_LAST_MODIFIED_TIME, coordJob);
-                        if (numWaitingActions >= coordJob.getMatThrottling()) {
-                            LOG.info("info for JobID [" + coordJob.getId() + "] " + numWaitingActions
-                                    + " actions already waiting. MatThrottle is : " + coordJob.getMatThrottling());
-                            rejected++;
-                            continue;
-                        }
-                        queueCallable(new CoordMaterializeTransitionXCommand(coordJob.getId(), materializationWindow));
-                    }
+                    Services.get().get(InstrumentationService.class).get()
+                            .incr(INSTRUMENTATION_GROUP, INSTR_MAT_JOBS_COUNTER, 1);
+                    queueCallable(new CoordMaterializeTransitionXCommand(coordJob.getId(), materializationWindow));
+                    coordJob.setLastModifiedTime(new Date());
+                    // TODO In place of calling single query, we should call bulk update.
+                    CoordJobQueryExecutor.getInstance().executeUpdate(
+                            CoordJobQueryExecutor.CoordJobQuery.UPDATE_COORD_JOB_LAST_MODIFIED_TIME, coordJob);
+
                 }
                 if (materializeJobs.size() == limit && rejected > 0) {
                     return true;
