@@ -395,7 +395,7 @@ public class CoordRerunXCommand extends RerunTransitionXCommand<CoordinatorActio
         try {
             BatchQueryExecutor.getInstance().executeBatchInsertUpdateDelete(insertList, updateList, null);
             if (EventHandlerService.isEnabled()) {
-                generateEvents(coordJob);
+                generateEvents(coordJob, null);
             }
         }
         catch (JPAExecutorException e) {
