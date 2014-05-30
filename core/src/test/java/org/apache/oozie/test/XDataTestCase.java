@@ -512,7 +512,26 @@ public abstract class XDataTestCase extends XHCatTestCase {
      */
     protected CoordinatorActionBean addRecordToCoordActionTable(String jobId, int actionNum,
             CoordinatorAction.Status status, String resourceXmlName, int pending) throws Exception {
-        CoordinatorActionBean action = createCoordAction(jobId, actionNum, status, resourceXmlName, pending);
+        return addRecordToCoordActionTable(jobId, actionNum, status, resourceXmlName, pending, null);
+    }
+
+    /**
+     * Insert coord action for testing.
+     *
+     * @param jobId coord job id
+     * @param actionNum action number
+     * @param status coord action status
+     * @param resourceXmlName xml file name
+     * @param pending pending counter
+     * @param actionNominalTime
+     * @return coord action bean
+     * @throws Exception thrown if unable to create coord action bean
+     */
+    protected CoordinatorActionBean addRecordToCoordActionTable(String jobId, int actionNum,
+            CoordinatorAction.Status status, String resourceXmlName, int pending, Date actionNominalTime)
+            throws Exception {
+        CoordinatorActionBean action = createCoordAction(jobId, actionNum, status, resourceXmlName, pending,
+                actionNominalTime);
 
         try {
             JPAService jpaService = Services.get().get(JPAService.class);
@@ -569,7 +588,12 @@ public abstract class XDataTestCase extends XHCatTestCase {
 
     protected CoordinatorActionBean createCoordAction(String jobId, int actionNum, CoordinatorAction.Status status,
             String resourceXmlName, int pending) throws Exception {
-        return createCoordAction(jobId, actionNum, status, resourceXmlName, pending, "Z");
+        return createCoordAction(jobId, actionNum, status, resourceXmlName, pending, "Z", null);
+    }
+
+    protected CoordinatorActionBean createCoordAction(String jobId, int actionNum, CoordinatorAction.Status status,
+            String resourceXmlName, int pending, Date actionNominalTime) throws Exception {
+        return createCoordAction(jobId, actionNum, status, resourceXmlName, pending, "Z", actionNominalTime);
     }
 
     /**
@@ -584,12 +608,11 @@ public abstract class XDataTestCase extends XHCatTestCase {
      * @throws Exception thrown if unable to create coord action bean
      */
     protected CoordinatorActionBean createCoordAction(String jobId, int actionNum, CoordinatorAction.Status status,
-            String resourceXmlName, int pending, String oozieTimeZoneMask) throws Exception {
+            String resourceXmlName, int pending, String oozieTimeZoneMask, Date actionNominalTime) throws Exception {
         String actionId = Services.get().get(UUIDService.class).generateChildId(jobId, actionNum + "");
         Path appPath = new Path(getFsTestCaseDir(), "coord");
         String actionXml = getCoordActionXml(appPath, resourceXmlName);
         actionXml = actionXml.replace("${TZ}", oozieTimeZoneMask);
-        String actionNominalTime = getActionNominalTime(actionXml);
 
         CoordinatorActionBean action = new CoordinatorActionBean();
         action.setId(actionId);
@@ -598,7 +621,14 @@ public abstract class XDataTestCase extends XHCatTestCase {
         action.setActionNumber(actionNum);
         action.setPending(pending);
         try {
-            action.setNominalTime(DateUtils.parseDateOozieTZ(actionNominalTime));
+            if (actionNominalTime == null) {
+                String nominalTime = getActionNominalTime(actionXml);
+
+                action.setNominalTime(DateUtils.parseDateOozieTZ(nominalTime));
+            }
+            else {
+                action.setNominalTime(actionNominalTime);
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1494,7 +1524,12 @@ public abstract class XDataTestCase extends XHCatTestCase {
         CoordinatorJobBean job = addRecordToCoordJobTableForWaiting("coord-job-for-action-input-check.xml",
                 CoordinatorJob.Status.RUNNING, false, true);
 
-        CoordinatorActionBean action = addRecordToCoordActionTableForWaiting(job.getId(), 1,
+        return addInitRecords(missingDependencies, pushMissingDependencies, oozieTimeZoneMask, job, 1);
+    }
+
+    protected String addInitRecords(String missingDependencies, String pushMissingDependencies, String oozieTimeZoneMask,
+            CoordinatorJobBean job, int actionNum) throws Exception {
+        CoordinatorActionBean action = addRecordToCoordActionTableForWaiting(job.getId(), actionNum,
                 CoordinatorAction.Status.WAITING, "coord-action-for-action-input-check.xml", missingDependencies,
                 pushMissingDependencies, oozieTimeZoneMask);
         return action.getId();
@@ -1504,7 +1539,7 @@ public abstract class XDataTestCase extends XHCatTestCase {
             CoordinatorAction.Status status, String resourceXmlName, String missingDependencies,
             String pushMissingDependencies, String oozieTimeZoneMask) throws Exception {
         CoordinatorActionBean action = createCoordAction(jobId, actionNum, status, resourceXmlName, 0,
-                oozieTimeZoneMask);
+                oozieTimeZoneMask, null);
         action.setMissingDependencies(missingDependencies);
         action.setPushMissingDependencies(pushMissingDependencies);
         try {
@@ -1560,6 +1595,13 @@ public abstract class XDataTestCase extends XHCatTestCase {
         JPAService jpaService = Services.get().get(JPAService.class);
         CoordinatorActionBean action = jpaService.execute(new CoordActionGetJPAExecutor(actionId));
         action.setCreatedTime(new Date(actionCreationTime));
+        CoordActionQueryExecutor.getInstance().executeUpdate(CoordActionQuery.UPDATE_COORD_ACTION, action);
+    }
+
+    protected void setCoordActionNominalTime(String actionId, long actionNominalTime) throws Exception {
+        JPAService jpaService = Services.get().get(JPAService.class);
+        CoordinatorActionBean action = jpaService.execute(new CoordActionGetJPAExecutor(actionId));
+        action.setNominalTime(new Date(actionNominalTime));
         CoordActionQueryExecutor.getInstance().executeUpdate(CoordActionQuery.UPDATE_COORD_ACTION, action);
     }
 

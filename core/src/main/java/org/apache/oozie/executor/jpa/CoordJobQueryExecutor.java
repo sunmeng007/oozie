@@ -243,6 +243,11 @@ public class CoordJobQueryExecutor extends QueryExecutor<CoordinatorJobBean, Coo
                 bean.setAppName((String) arr[1]);
                 bean.setStatusStr((String) arr[2]);
                 bean.setAppNamespace((String) arr[3]);
+                bean.setExecution((String) arr[4]);
+                bean.setFrequency((String) arr[5]);
+                bean.setTimeUnitStr((String) arr[6]);
+                bean.setTimeZone((String) arr[7]);
+                bean.setEndTime(DateUtils.toDate((Timestamp) arr[8]));
                 break;
             case GET_COORD_JOB_ACTION_READY:
                 bean = new CoordinatorJobBean();
@@ -287,6 +292,7 @@ public class CoordJobQueryExecutor extends QueryExecutor<CoordinatorJobBean, Coo
                 bean.setConfBlob((StringBlob) arr[17]);
                 bean.setJobXmlBlob((StringBlob) arr[18]);
                 bean.setAppNamespace((String) arr[19]);
+                bean.setExecution((String) arr[20]);
                 break;
             case GET_COORD_JOB_SUSPEND_KILL:
                 bean = new CoordinatorJobBean();

@@ -186,6 +186,9 @@ public class CoordMaterializeTransitionXCommand extends MaterializeTransitionXCo
 
         startMatdTime = DateUtils.toDate(new Timestamp(startTimeMilli));
         endMatdTime = DateUtils.toDate(new Timestamp(endTimeMilli));
+        if (coordJob.getExecutionOrder().equals(CoordinatorJob.Execution.LAST_ONLY) && !endMatdTime.after(new Date())) {
+            endMatdTime = new Date();
+        }
         // if MaterializationWindow end time is greater than endTime
         // for job, then set it to endTime of job
         Date jobEndTime = coordJob.getEndTime();
@@ -329,7 +332,6 @@ public class CoordMaterializeTransitionXCommand extends MaterializeTransitionXCo
         // Move to the End of duration, if needed.
         DateUtils.moveToEnd(origStart, endOfFlag);
 
-        Date effStart = (Date) startMatdTime.clone();
         StringBuilder actionStrings = new StringBuilder();
         Date jobPauseTime = coordJob.getPauseTime();
         Calendar pause = null;
@@ -339,9 +341,11 @@ public class CoordMaterializeTransitionXCommand extends MaterializeTransitionXCo
         }
 
         String action = null;
-        JPAService jpaService = Services.get().get(JPAService.class);
         int numWaitingActions = jpaService.execute(new CoordActionsActiveCountJPAExecutor(coordJob.getId()));
         int maxActionToBeCreated = coordJob.getMatThrottling() - numWaitingActions;
+        // If LAST_ONLY and all materialization is in the past, ignore maxActionsToBeCreated
+        boolean ignoreMaxActions =
+                coordJob.getExecutionOrder().equals(CoordinatorJob.Execution.LAST_ONLY) && endMatdTime.before(new Date());
         LOG.debug("Coordinator job :" + coordJob.getId() + ", maxActionToBeCreated :" + maxActionToBeCreated
                 + ", Mat_Throttle :" + coordJob.getMatThrottling() + ", numWaitingActions :" + numWaitingActions);
 
@@ -354,7 +358,7 @@ public class CoordMaterializeTransitionXCommand extends MaterializeTransitionXCo
         }
 
         boolean firstMater = true;
-        while (start.compareTo(end) < 0 && maxActionToBeCreated-- > 0) {
+        while (start.compareTo(end) < 0 && (ignoreMaxActions || maxActionToBeCreated-- > 0)) {
             if (pause != null && start.compareTo(pause) >= 0) {
                 break;
             }
