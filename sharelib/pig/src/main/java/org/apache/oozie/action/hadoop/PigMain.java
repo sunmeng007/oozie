@@ -66,8 +66,6 @@ public class PigMain extends LauncherMain {
         DISALLOWED_PIG_OPTIONS.add("-logfile");
         DISALLOWED_PIG_OPTIONS.add("-r");
         DISALLOWED_PIG_OPTIONS.add("-dryrun");
-        DISALLOWED_PIG_OPTIONS.add("-x");
-        DISALLOWED_PIG_OPTIONS.add("-exectype");
         DISALLOWED_PIG_OPTIONS.add("-P");
         DISALLOWED_PIG_OPTIONS.add("-propertyFile");
     }
@@ -105,6 +103,7 @@ public class PigMain extends LauncherMain {
         String jobTokenFile = getFilePathFromEnv("HADOOP_TOKEN_FILE_LOCATION");
         if (jobTokenFile != null) {
             pigProperties.setProperty("mapreduce.job.credentials.binary", jobTokenFile);
+            pigProperties.setProperty("tez.credentials.path", jobTokenFile);
             System.out.println("------------------------");
             System.out.println("Setting env property for mapreduce.job.credentials.binary to:"
                     + jobTokenFile);
