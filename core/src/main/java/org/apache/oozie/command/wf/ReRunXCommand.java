@@ -112,6 +112,11 @@ public class ReRunXCommand extends WorkflowXCommand<Void> {
         this.conf = ParamChecker.notNull(conf, "conf");
     }
 
+    @Override
+    protected void setLogInfo() {
+        LogUtils.setLogInfo(jobId);
+    }
+
     /* (non-Javadoc)
      * @see org.apache.oozie.command.XCommand#execute()
      */
@@ -128,7 +133,7 @@ public class ReRunXCommand extends WorkflowXCommand<Void> {
 
     private void setupReRun() throws CommandException {
         InstrumentUtils.incrJobCounter(getName(), 1, getInstrumentation());
-        LogUtils.setLogInfo(wfBean, logInfo);
+        LogUtils.setLogInfo(wfBean);
         WorkflowInstance oldWfInstance = this.wfBean.getWorkflowInstance();
         WorkflowInstance newWfInstance;
         String appPath = null;

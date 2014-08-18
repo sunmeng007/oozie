@@ -1127,8 +1127,7 @@ public class JavaActionExecutor extends ActionExecutor {
 
     @Override
     public void start(Context context, WorkflowAction action) throws ActionExecutorException {
-        LOG = XLog.resetPrefix(LOG);
-        LogUtils.setLogInfo(action, new XLog.Info());
+        LogUtils.setLogInfo(action);
         try {
             LOG.debug("Starting action " + action.getId() + " getting Action File System");
             FileSystem actionFs = context.getAppFileSystem();
@@ -1190,8 +1189,7 @@ public class JavaActionExecutor extends ActionExecutor {
     public void check(Context context, WorkflowAction action) throws ActionExecutorException {
         JobClient jobClient = null;
         boolean exception = false;
-        LOG = XLog.resetPrefix(LOG);
-        LogUtils.setLogInfo(action, new XLog.Info());
+        LogUtils.setLogInfo(action);
         try {
             Element actionXml = XmlUtils.parseXml(action.getConf());
             FileSystem actionFs = context.getAppFileSystem();
