@@ -1318,6 +1318,8 @@ public abstract class XDataTestCase extends XHCatTestCase {
         conf.set("jobTracker", getJobTrackerUri());
         conf.set("nameNode", getNameNodeUri());
         conf.set("appName", "bundle-app-name");
+        conf.set("coordName1", "coord1");
+        conf.set("coordName2", "coord2");
 
         BundleJobBean bundle = new BundleJobBean();
         bundle.setId(jobID);
@@ -1384,6 +1386,8 @@ public abstract class XDataTestCase extends XHCatTestCase {
         conf.set(OozieClient.USER_NAME, getTestUser());
         conf.set("jobTracker", getJobTrackerUri());
         conf.set("nameNode", getNameNodeUri());
+        conf.set("coordName1", "coord1");
+        conf.set("coordName2", "coord2");
 
         BundleJobBean bundle = new BundleJobBean();
         bundle.setId(Services.get().get(UUIDService.class).generateId(ApplicationType.BUNDLE));
@@ -1403,7 +1407,7 @@ public abstract class XDataTestCase extends XHCatTestCase {
         return bundle;
     }
 
-    private String getBundleXml(String resourceXmlName) {
+    protected String getBundleXml(String resourceXmlName) {
         try {
             Reader reader = IOUtils.getResourceAsReader(resourceXmlName, -1);
             String appXml = IOUtils.getReaderAsString(reader, -1);
