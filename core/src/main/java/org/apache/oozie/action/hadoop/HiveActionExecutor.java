@@ -63,7 +63,15 @@ public class HiveActionExecutor extends ScriptLanguageActionExecutor {
 
     @Override
     protected String getLauncherMain(Configuration launcherConf, Element actionXml) {
-        return launcherConf.get(CONF_OOZIE_ACTION_MAIN_CLASS, HIVE_MAIN_CLASS_NAME);
+        // CDH: Allow backwards compatibility with deprecated Hive2Main, which had to be renamed for a name-collision
+        //return launcherConf.get(CONF_OOZIE_ACTION_MAIN_CLASS, HIVE_MAIN_CLASS_NAME);
+        String mainClassName = launcherConf.get(CONF_OOZIE_ACTION_MAIN_CLASS, HIVE_MAIN_CLASS_NAME);
+        if (mainClassName.equals("org.apache.oozie.action.hadoop.Hive2Main")) {
+            mainClassName = "org.apache.oozie.action.hadoop.Hive2MainOld";
+            LOG.warn("Using the Hive action with Hive Server 2 is DEPRECATED.  "
+                    + "Users are encouraged to switch to the Hive 2 action instead.");
+        }
+        return mainClassName;
     }
 
     @Override
