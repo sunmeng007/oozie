@@ -350,6 +350,12 @@
             <artifactId>collections-generic</artifactId>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-jdbc</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
