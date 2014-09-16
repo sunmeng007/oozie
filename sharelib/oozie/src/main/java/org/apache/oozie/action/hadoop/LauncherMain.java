@@ -28,6 +28,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.hadoop.util.Shell;
+import org.apache.hadoop.mapred.JobConf;
 
 public abstract class LauncherMain {
 
@@ -114,6 +115,30 @@ public abstract class LauncherMain {
             }
         }
         return path;
+    }
+
+    /**
+     * Will run the user specified OozieActionConfigurator subclass (if one is provided) to update the action configuration.
+     *
+     * @param actionConf The action configuration to update
+     * @throws OozieActionConfiguratorException
+     */
+    protected static void runConfigClass(JobConf actionConf) throws OozieActionConfiguratorException {
+        String configClass = System.getProperty(LauncherMapper.OOZIE_ACTION_CONFIG_CLASS);
+        if (configClass != null) {
+            try {
+                Class<?> klass = Class.forName(configClass);
+                Class<? extends OozieActionConfigurator> actionConfiguratorKlass = klass.asSubclass(OozieActionConfigurator.class);
+                OozieActionConfigurator actionConfigurator = actionConfiguratorKlass.newInstance();
+                actionConfigurator.configure(actionConf);
+            } catch (ClassNotFoundException e) {
+                throw new OozieActionConfiguratorException("An Exception occured while instantiating the action config class", e);
+            } catch (InstantiationException e) {
+                throw new OozieActionConfiguratorException("An Exception occured while instantiating the action config class", e);
+            } catch (IllegalAccessException e) {
+                throw new OozieActionConfiguratorException("An Exception occured while instantiating the action config class", e);
+            }
+        }
     }
 }
 
