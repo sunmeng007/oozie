@@ -198,6 +198,13 @@ public class MockCoordinatorEngineService extends CoordinatorEngineService {
         }
 
         @Override
+        public String getJobStatus(String jobId) throws CoordinatorEngineException {
+            did = RestConstants.JOB_SHOW_STATUS;
+            int idx = validateCoordinatorIdx(jobId);
+            return coordJobs.get(idx).getStatus().toString();
+        }
+
+        @Override
         public String getDefinition(String jobId) throws BaseEngineException {
             did = RestConstants.JOB_SHOW_DEFINITION;
             validateCoordinatorIdx(jobId);

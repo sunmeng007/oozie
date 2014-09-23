@@ -58,6 +58,7 @@ public class CoordJobQueryExecutor extends QueryExecutor<CoordinatorJobBean, Coo
         GET_COORD_JOB_ACTION_KILL,
         GET_COORD_JOB_MATERIALIZE,
         GET_COORD_JOB_SUSPEND_KILL,
+        GET_COORD_JOB_STATUS,
         GET_COORD_JOB_STATUS_PARENTID,
         GET_COORD_JOBS_CHANGED
     };
@@ -190,6 +191,7 @@ public class CoordJobQueryExecutor extends QueryExecutor<CoordinatorJobBean, Coo
             case GET_COORD_JOB_ACTION_KILL:
             case GET_COORD_JOB_MATERIALIZE:
             case GET_COORD_JOB_SUSPEND_KILL:
+            case GET_COORD_JOB_STATUS:
             case GET_COORD_JOB_STATUS_PARENTID:
                 query.setParameter("id", parameters[0]);
                 break;
@@ -295,6 +297,11 @@ public class CoordJobQueryExecutor extends QueryExecutor<CoordinatorJobBean, Coo
                 bean.setBundleId((String) arr[5]);
                 bean.setAppNamespace((String) arr[6]);
                 bean.setDoneMaterialization((Integer) arr[7]);
+                break;
+            case GET_COORD_JOB_STATUS:
+                bean = new CoordinatorJobBean();
+                bean.setId((String) parameters[0]);
+                bean.setStatusStr((String) ret);
                 break;
             case GET_COORD_JOB_STATUS_PARENTID:
                 bean = new CoordinatorJobBean();

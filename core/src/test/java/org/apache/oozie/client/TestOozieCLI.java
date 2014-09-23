@@ -57,7 +57,7 @@ public class TestOozieCLI extends DagServletTestCase {
     static final String VERSION = "/v" + OozieClient.WS_PROTOCOL_VERSION;
     static final String[] END_POINTS = {"/versions", VERSION + "/jobs", VERSION + "/job/*", VERSION + "/admin/*"};
     static final Class[] SERVLET_CLASSES = { HeaderTestingVersionServlet.class, V1JobsServlet.class,
-            V1JobServlet.class, V1AdminServlet.class, V2JobServlet.class, V2AdminServlet.class };
+            V2JobServlet.class, V2AdminServlet.class, V2JobServlet.class, V2AdminServlet.class };
 
     @Override
     protected void setUp() throws Exception {
@@ -864,6 +864,37 @@ public class TestOozieCLI extends DagServletTestCase {
                 assertEquals(MockCoordinatorEngineService.length, new Integer(10));
                 assertEquals(MockCoordinatorEngineService.order, "desc");
                 assertEquals(MockCoordinatorEngineService.filter, "status!=FAILED");
+
+                return null;
+            }
+        });
+    }
+
+    public void testJobPoll() throws Exception {
+        runTest(END_POINTS, SERVLET_CLASSES, IS_SECURITY_ENABLED, new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                String oozieUrl = getContextURL();
+                MockDagEngineService.reset();
+                String[] args = new String[]{"job", "-oozie", oozieUrl, "-poll", MockDagEngineService.JOB_ID + "1" +
+                    MockDagEngineService.JOB_ID_END};
+                assertEquals(0, new OozieCLI().run(args));
+                assertEquals(RestConstants.JOB_SHOW_STATUS, MockDagEngineService.did);
+
+                args = new String[]{"job", "-oozie", oozieUrl, "-poll", MockDagEngineService.JOB_ID + "1" +
+                    MockDagEngineService.JOB_ID_END, "-interval", "10"};
+                assertEquals(0, new OozieCLI().run(args));
+                assertEquals(RestConstants.JOB_SHOW_STATUS, MockDagEngineService.did);
+
+                args = new String[]{"job", "-oozie", oozieUrl, "-poll", MockDagEngineService.JOB_ID + "1" +
+                    MockDagEngineService.JOB_ID_END, "-timeout", "60"};
+                assertEquals(0, new OozieCLI().run(args));
+                assertEquals(RestConstants.JOB_SHOW_STATUS, MockDagEngineService.did);
+
+                args = new String[]{"job", "-oozie", oozieUrl, "-poll", MockDagEngineService.JOB_ID + "1" +
+                    MockDagEngineService.JOB_ID_END, "-interval", "10", "-timeout", "60"};
+                assertEquals(0, new OozieCLI().run(args));
+                assertEquals(RestConstants.JOB_SHOW_STATUS, MockDagEngineService.did);
 
                 return null;
             }

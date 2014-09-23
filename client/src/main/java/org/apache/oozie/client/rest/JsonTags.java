@@ -231,4 +231,5 @@ public interface JsonTags {
     public static final String COORD_UPDATE = RestConstants.JOB_COORD_UPDATE;
     public static final String COORD_UPDATE_DIFF = "diff";
 
+    public static final String STATUS = "status";
 }
