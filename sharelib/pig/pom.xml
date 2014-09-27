@@ -235,6 +235,12 @@
             <artifactId>joda-time</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.pig</groupId>
+            <artifactId>piggybank</artifactId>
+            <scope>compile</scope>
+            <version>${pig.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
