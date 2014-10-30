@@ -85,7 +85,12 @@ public class ConfigUtils {
         }
         sb.append(System.getProperty("oozie.http.hostname"));
         sb.append(":");
-        sb.append(System.getProperty("oozie.http.port"));
+        if (secure) {
+            sb.append(System.getProperty("oozie.https.port"));
+        }
+        else {
+            sb.append(System.getProperty("oozie.http.port"));
+        }
         sb.append("/oozie");
         return sb.toString();
     }
