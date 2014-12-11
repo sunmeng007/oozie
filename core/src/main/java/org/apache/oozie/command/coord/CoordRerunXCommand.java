@@ -82,6 +82,7 @@ public class CoordRerunXCommand extends RerunTransitionXCommand<CoordinatorActio
     private boolean noCleanup;
     private CoordinatorJobBean coordJob = null;
     protected boolean prevPending;
+    private boolean failed;
 
     /**
      * The constructor for class {@link CoordRerunXCommand}
@@ -92,13 +93,15 @@ public class CoordRerunXCommand extends RerunTransitionXCommand<CoordinatorActio
      * @param refresh true if user wants to refresh input/output dataset urls
      * @param noCleanup false if user wants to cleanup output events for given rerun actions
      */
-    public CoordRerunXCommand(String jobId, String rerunType, String scope, boolean refresh, boolean noCleanup) {
+    public CoordRerunXCommand(String jobId, String rerunType, String scope, boolean refresh, boolean noCleanup,
+                              boolean failed) {
         super("coord_rerun", "coord_rerun", 1);
         this.jobId = ParamChecker.notEmpty(jobId, "jobId");
         this.rerunType = ParamChecker.notEmpty(rerunType, "rerunType");
         this.scope = ParamChecker.notEmpty(scope, "scope");
         this.refresh = refresh;
         this.noCleanup = noCleanup;
+        this.failed = failed;
     }
 
     /**
@@ -198,7 +201,9 @@ public class CoordRerunXCommand extends RerunTransitionXCommand<CoordinatorActio
             coordAction.setCreatedTime(new Date());
         }
         coordAction.setStatus(CoordinatorAction.Status.WAITING);
-        coordAction.setExternalId(null);
+        if(!failed) {
+            coordAction.setExternalId(null);
+        }
         coordAction.setExternalStatus(null);
         coordAction.setRerunTime(new Date());
         coordAction.setLastModifiedTime(new Date());
