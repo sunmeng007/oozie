@@ -106,7 +106,7 @@ public abstract class ZKXTestCaseWithSecurity extends ZKXTestCase {
         kdc = new MiniKdc(MiniKdc.createConf(), new File(getTestCaseDir()));
         kdc.start();
         keytabFile = new File(getTestCaseDir(), "test.keytab");
-        String serverPrincipal = "zookeeper/127.0.0.1";
+        String serverPrincipal = "zookeeper/localhost";
         kdc.createPrincipal(keytabFile, getPrincipal(), serverPrincipal);
 
         setSystemProperty("zookeeper.authProvider.1", "org.apache.zookeeper.server.auth.SASLAuthenticationProvider");
