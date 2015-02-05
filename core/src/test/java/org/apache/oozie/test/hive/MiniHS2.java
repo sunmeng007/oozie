@@ -84,7 +84,8 @@ public class MiniHS2 extends AbstractHiveService {
     hiveConf.setVar(ConfVars.HIVE_SERVER2_THRIFT_BIND_HOST, getHost());
     hiveConf.setIntVar(ConfVars.HIVE_SERVER2_THRIFT_PORT, getBinaryPort());
     hiveConf.setIntVar(ConfVars.HIVE_SERVER2_THRIFT_HTTP_PORT, getHttpPort());
-    HiveMetaStore.HMSHandler.resetDefaultDBFlag();
+    // CLOUDERA-BUILD: Don't need this for Hive 0.14 and later
+    //HiveMetaStore.HMSHandler.resetDefaultDBFlag();
 
     Path scratchDir = new Path(baseDfsDir, "scratch");
     fs.mkdirs(scratchDir);

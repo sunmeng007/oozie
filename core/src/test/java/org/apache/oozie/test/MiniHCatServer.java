@@ -150,9 +150,10 @@ public class MiniHCatServer {
     public static void resetDefaultDBCreation() throws Exception {
         // Need to do this, else default db will not be created for local metastores.
         // TestHiveMain will fail with InvalidObjectException(message:There is no database named default)
-        Field declaredField = HMSHandler.class.getDeclaredField("createDefaultDB");
-        declaredField.setAccessible(true);
-        declaredField.set(null, false);
+        // CLOUDERA-BUILD: Don't need this for Hive 0.14 and later
+        //Field declaredField = HMSHandler.class.getDeclaredField("createDefaultDB");
+        //declaredField.setAccessible(true);
+        //declaredField.set(null, false);
     }
 
     public static void resetHiveConfStaticVariables() throws Exception {
