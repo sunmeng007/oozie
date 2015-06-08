@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
@@ -232,7 +233,10 @@ public class ShareLibService implements Service, Instrumentable {
      */
     private void copyJarContainingClasses(List<Class> classes, FileSystem fs, Path executorDir, String type)
             throws IOException {
-        fs.mkdirs(executorDir);
+        //add by mengsun
+        if(!fs.exists(executorDir)){
+          fs.mkdirs(executorDir);
+        }
         Set<String> localJarSet = new HashSet<String>();
         for (Class c : classes) {
             String localJar = findContainingJar(c);
@@ -307,6 +311,14 @@ public class ShareLibService implements Service, Instrumentable {
                 }
             }
         }
+        for(Entry<String,List<Path>> entry : shareLibMap.entrySet()){
+          String k = entry.getKey();
+          List<Path> v = entry.getValue();
+          LOG.error("test14-----"+k);
+          for(Path p : v){
+            LOG.error("test15-----"+p);
+          }
+        }
         return shareLibMap.get(actionKey);
     }
 
@@ -330,12 +342,22 @@ public class ShareLibService implements Service, Instrumentable {
                     }
                 }
             }
-            returnList = launcherLibMap.get(actionKey);
+            if (launcherLibMap.get(actionKey) != null) {
+              returnList.addAll(launcherLibMap.get(actionKey));
+            }
         }
         if (actionKey.equals(JavaActionExecutor.OOZIE_COMMON_LIBDIR)) {
             List<Path> sharelibList = getShareLibJars(actionKey);
+            LOG.error("test13-----"+sharelibList.size());
+            for(Path p : sharelibList){
+              LOG.error("test12-----"+sharelibList);
+            }
             if (sharelibList != null) {
                 returnList.addAll(sharelibList);
+            }
+            LOG.error("test10-----"+returnList.size());
+            for(Path p : returnList){
+              LOG.error("test11-----"+p);
             }
         }
         return returnList;
@@ -566,8 +588,11 @@ public class ShareLibService implements Service, Instrumentable {
      */
     private Path getLauncherlibPath() {
         String formattedDate = dateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime());
+//        Path tmpLauncherLibPath = new Path(services.get(WorkflowAppService.class).getSystemLibPath(), LAUNCHER_PREFIX
+//                + formattedDate);
         Path tmpLauncherLibPath = new Path(services.get(WorkflowAppService.class).getSystemLibPath(), LAUNCHER_PREFIX
-                + formattedDate);
+            + "30000101000000");
+        //add by mengsun
         return tmpLauncherLibPath;
     }
 
