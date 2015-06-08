@@ -314,10 +314,6 @@ public class ShareLibService implements Service, Instrumentable {
         for(Entry<String,List<Path>> entry : shareLibMap.entrySet()){
           String k = entry.getKey();
           List<Path> v = entry.getValue();
-          LOG.error("test14-----"+k);
-          for(Path p : v){
-            LOG.error("test15-----"+p);
-          }
         }
         return shareLibMap.get(actionKey);
     }
@@ -348,16 +344,8 @@ public class ShareLibService implements Service, Instrumentable {
         }
         if (actionKey.equals(JavaActionExecutor.OOZIE_COMMON_LIBDIR)) {
             List<Path> sharelibList = getShareLibJars(actionKey);
-            LOG.error("test13-----"+sharelibList.size());
-            for(Path p : sharelibList){
-              LOG.error("test12-----"+sharelibList);
-            }
             if (sharelibList != null) {
                 returnList.addAll(sharelibList);
-            }
-            LOG.error("test10-----"+returnList.size());
-            for(Path p : returnList){
-              LOG.error("test11-----"+p);
             }
         }
         return returnList;

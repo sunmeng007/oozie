@@ -595,8 +595,6 @@ public class JavaActionExecutor extends ActionExecutor {
 
                             for (Path actionLibPath : listOfPaths) {
                                 if(actionLibPath.toUri().getAuthority() != null){
-                                  LOG.error("test8----"+actionLibPath.toUri().getScheme());
-                                  LOG.error("test9----"+actionLibPath.toUri().getPath());
                                   tmpActionLibPath = new Path(actionLibPath.toUri().getPath());
                                 }else{
                                   tmpActionLibPath = actionLibPath;
@@ -629,19 +627,10 @@ public class JavaActionExecutor extends ActionExecutor {
                     throw new ActionExecutorException(ActionExecutorException.ErrorType.FAILED, "EJ001",
                             "Could not locate Oozie sharelib");
                 }
-                LOG.error("test7-----"+listOfPaths.size());
-                for(Path p: listOfPaths){
-                  LOG.error("test1-----"+p);
-                }
-                LOG.error("test2-----"+listOfPaths.get(0));
                 FileSystem fs = listOfPaths.get(0).getFileSystem(conf);
-                LOG.error("test3-----"+fs.getName());
                 Path tmpActionLibPath;
                 for (Path actionLibPath : listOfPaths) {
-                    LOG.error("test4----"+actionLibPath.toUri().getAuthority());
                     if(actionLibPath.toUri().getAuthority() != null){
-                      LOG.error("test5----"+actionLibPath.toUri().getScheme());
-                      LOG.error("test6----"+actionLibPath.toUri().getPath());
                       tmpActionLibPath = new Path(actionLibPath.toUri().getPath());
                     }else{
                       tmpActionLibPath = actionLibPath;
